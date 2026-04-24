@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>job-ready-roadmap-tracker</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=clash-display@500,600&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --surface-2: #f2efe8;
+      --text: #1f1d18;
+      --muted: #6f6a60;
+      --border: #ddd8cf;
+      --primary: #0f766e;
+      --primary-2: #d9efec;
+      --success: #2f855a;
+      --warning: #b7791f;
+      --danger: #b83280;
+      --shadow: 0 10px 30px rgba(36, 31, 22, 0.08);
+      --radius: 16px;
+    }
+    [data-theme="dark"] {
+      --bg: #171614;
+      --surface: #201f1d;
+      --surface-2: #2a2926;
+      --text: #ece7de;
+      --muted: #aaa399;
+      --border: #383530;
+      --primary: #56b7ad;
+      --primary-2: #243836;
+      --success: #68d391;
+      --warning: #f6ad55;
+      --danger: #f687b3;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Satoshi', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .title h1 {
+      margin: 0;
+      font-family: 'Clash Display', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      line-height: 1;
+    }
+    .title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 760px;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    button, .pill {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font: inherit;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .stat {
+      padding: 18px;
+    }
+    .stat .k {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .stat .v {
+      margin-top: 8px;
+      font-size: 1.9rem;
+      font-weight: 700;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 20px;
+    }
+    .sidebar, .main {
+      min-width: 0;
+    }
+    .panel {
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .panel h2, .panel h3 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+    .small { color: var(--muted); font-size: 0.92rem; }
+    .phase-list, .quick-links { display: grid; gap: 10px; }
+    .phase-btn, .quick-links a {
+      text-decoration: none;
+      color: var(--text);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: block;
+    }
+    .board {
+      display: grid;
+      gap: 18px;
+    }
+    .section {
+      padding: 18px;
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .section h2 { margin: 0; font-size: 1.2rem; }
+    .tag {
+      display: inline-block;
+      background: var(--primary-2);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+    .task-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .task {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    }
+    .task input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--primary);
+    }
+    .task strong { display: block; margin-bottom: 4px; }
+    .task p { margin: 0; color: var(--muted); font-size: 0.93rem; }
+    .badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .b-core { background: #e6f4ea; color: #22663e; }
+    .b-build { background: #e6f0ff; color: #2457a6; }
+    .b-ai { background: #f8e8f2; color: #9b2c6b; }
+    .b-cloud { background: #fff2df; color: #9c5b00; }
+    .notes textarea {
+      width: 100%;
+      min-height: 130px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 14px;
+      font: inherit;
+      resize: vertical;
+    }
+    .footer-note { color: var(--muted); font-size: 0.9rem; }
+    .progressbar {
+      height: 10px;
+      background: var(--surface-2);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .progressbar > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), #38b2ac);
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+    @media (max-width: 980px) {
+      .stats, .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <h1>Job Ready Tracker</h1>
+        <p>Notion-style roadmap tracker for a 2nd year CSE student — built around core CS, cloud, AI/ML, mini projects, and full-stack deployment goals.</p>
+      </div>
+      <div class="controls">
+        <button id="themeToggle" aria-label="Toggle theme">Toggle theme</button>
+        <button id="checkAll">Mark visible done</button>
+        <button id="resetAll">Reset all</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="card stat"><div class="k">Overall progress</div><div class="v" id="overallPct">0%</div><div class="progressbar"><div id="overallBar"></div></div></div>
+      <div class="card stat"><div class="k">Tasks done</div><div class="v" id="doneCount">0</div></div>
+      <div class="card stat"><div class="k">Total tasks</div><div class="v" id="totalCount">0</div></div>
+      <div class="card stat"><div class="k">Current focus</div><div class="v" style="font-size:1.15rem;line-height:1.3">Build weekly consistency</div></div>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="card panel">
+          <h2>Phases</h2>
+          <div class="phase-list">
+            <a class="phase-btn" href="#phase1">Phase 1 · Programming + Linux</a>
+            <a class="phase-btn" href="#phase2">Phase 2 · DBMS + SQL + NoSQL</a>
+            <a class="phase-btn" href="#phase3">Phase 3 · Networking + Web</a>
+            <a class="phase-btn" href="#phase4">Phase 4 · Cloud + DevOps</a>
+            <a class="phase-btn" href="#phase5">Phase 5 · AI/ML + LLM Apps</a>
+            <a class="phase-btn" href="#projects">Final integrated projects</a>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <h3>Weekly system</h3>
+          <p class="small">Use this like a Notion dashboard: check tasks weekly, add notes, and revisit incomplete items before moving to the next phase.</p>
+          <div class="quick-links">
+            <div class="pill">5 days · Learning + coding</div>
+            <div class="pill">1 day · Project build</div>
+            <div class="pill">1 day · Revision + resume</div>
+          </div>
+        </div>
+
+        <div class="card panel notes">
+          <h3>Weekly notes</h3>
+          <textarea placeholder="Write what you finished this week, blockers, interview prep notes, repo links, bugs fixed, deployment attempts..."></textarea>
+          <p class="footer-note">Tip: store screenshots and GitHub repo links beside each milestone.</p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="board">
+          <section class="card section" id="phase1">
+            <div class="section-head">
+              <div>
+                <h2>Phase 1 · OOP + One language + Linux + Git</h2>
+                <p class="small">Goal: build strong coding habits and become comfortable in a Linux-based development workflow.</p>
+              </div>
+              <span class="tag">Months 1-3</span>
+            </div>
+            <div class="task-grid">
+              <label class="task"><input type="checkbox"><div><strong>Pick one main language: Python or Java</strong><p>Do not split focus. Learn syntax, functions, modules/packages, debugging, exceptions, and input/output.</p></div><span class="badge b-core">Core</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Finish OOP basics deeply</strong><p>Classes, objects, inheritance, polymorphism, abstraction, encapsulation, interfaces/abstract classes.</p></div><span class="badge b-core">Core</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Use Linux daily</strong><p>Files, permissions, users, grep, pipes, package manager, processes, environment variables, cron.</p></div><span class="badge b-core">Core</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Learn Git and GitHub</strong><p>init, add, commit, branch, merge, pull request, README writing, versioning your mini projects.</p></div><span class="badge b-build">Build</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: OOP student management system</strong><p>Build CLI app with classes, validation, file/database storage, and clean folder structure.</p></div><span class="badge b-build">Build</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: Linux system monitor</strong><p>Create Bash or Python script to show CPU, memory, disk, top processes, and basic logs.</p></div><span class="badge b-build">Build</span></label>
+            </div>
+          </section>
+
+          <section class="card section" id="phase2">
+            <div class="section-head">
+              <div>
+                <h2>Phase 2 · DBMS + SQL + NoSQL</h2>
+                <p class="small">Goal: design data properly, query it well, and understand when relational vs document databases make sense.</p>
+              </div>
+              <span class="tag">Months 4-6</span>
+            </div>
+            <div class="task-grid">
+              <label class="task"><input type="checkbox"><div><strong>Learn DBMS fundamentals</strong><p>ER model, keys, relationships, normalization, transactions, ACID, indexing, joins.</p></div><span class="badge b-core">Core</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Practice SQL seriously</strong><p>Write 100+ queries with filters, joins, subqueries, views, grouping, window functions if possible.</p></div><span class="badge b-core">Core</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Learn NoSQL basics</strong><p>MongoDB documents, collections, embedding vs referencing, indexes, aggregation pipeline.</p></div><span class="badge b-core">Core</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: Library or hostel DB</strong><p>Create schema, insert sample data, write normalized tables and report queries.</p></div><span class="badge b-build">Build</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: SQL analytics dashboard backend</strong><p>Build query set for rankings, attendance, sales, or marks reporting.</p></div><span class="badge b-build">Build</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: MongoDB notes app</strong><p>Store note documents, tags, search filters, and simple aggregation reports.</p></div><span class="badge b-build">Build</span></label>
+            </div>
+          </section>
+
+          <section class="card section" id="phase3">
+            <div class="section-head">
+              <div>
+                <h2>Phase 3 · Networking + Web fundamentals</h2>
+                <p class="small">Goal: understand how applications talk over the network and how browsers, servers, and APIs connect.</p>
+              </div>
+              <span class="tag">Months 7-9</span>
+            </div>
+            <div class="task-grid">
+              <label class="task"><input type="checkbox"><div><strong>Learn networking basics for developers</strong><p>OSI/TCP-IP, IPs, ports, DNS, HTTP/HTTPS, TCP/UDP, SSL/TLS basics, request-response flow.</p></div><span class="badge b-core">Core</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Learn frontend basics</strong><p>HTML, CSS, JavaScript, DOM, fetch, forms, and validation.</p></div><span class="badge b-core">Core</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Build REST APIs</strong><p>Use Flask/FastAPI or Java backend to create CRUD APIs and test them with Postman.</p></div><span class="badge b-build">Build</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: URL/network analyzer</strong><p>Show DNS lookup, HTTP headers, response time, and port-level basics.</p></div><span class="badge b-build">Build</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: local web app</strong><p>Create a simple full-stack app running completely on your laptop.</p></div><span class="badge b-build">Build</span></label>
+            </div>
+          </section>
+
+          <section class="card section" id="phase4">
+            <div class="section-head">
+              <div>
+                <h2>Phase 4 · Cloud + AWS + DevOps basics</h2>
+                <p class="small">Goal: learn to deploy, secure, monitor, and maintain applications in the cloud.</p>
+              </div>
+              <span class="tag">Months 10-12</span>
+            </div>
+            <div class="task-grid">
+              <label class="task"><input type="checkbox"><div><strong>Learn cloud fundamentals</strong><p>Compute, storage, networking, scalability, shared responsibility, availability, security basics.</p></div><span class="badge b-cloud">Cloud</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Go deep on AWS core services</strong><p>IAM, EC2, S3, VPC, RDS, Lambda, CloudWatch, basic Route 53 concepts.</p></div><span class="badge b-cloud">Cloud</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Learn Docker + deployment flow</strong><p>Dockerfile, images, containers, env vars, ports, reverse proxy basics, GitHub Actions intro.</p></div><span class="badge b-cloud">Cloud</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: static site on S3</strong><p>Host your resume or portfolio with clean structure and updates.</p></div><span class="badge b-build">Build</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: backend on EC2</strong><p>Deploy a CRUD backend with Linux setup, security groups, logs, and restart handling.</p></div><span class="badge b-build">Build</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: CI/CD pipeline</strong><p>Push code to GitHub and trigger test/build/deploy automatically.</p></div><span class="badge b-build">Build</span></label>
+            </div>
+          </section>
+
+          <section class="card section" id="phase5">
+            <div class="section-head">
+              <div>
+                <h2>Phase 5 · AI/ML + LLMs + RAG + agents</h2>
+                <p class="small">Goal: become application-oriented with modern AI, not just theory-oriented.</p>
+              </div>
+              <span class="tag">Months 13-18</span>
+            </div>
+            <div class="task-grid">
+              <label class="task"><input type="checkbox"><div><strong>Learn ML basics</strong><p>Supervised learning, train/test split, evaluation metrics, overfitting, basic model workflow.</p></div><span class="badge b-ai">AI/ML</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Run local LLMs</strong><p>Use Ollama or LM Studio, understand model size, quantization, prompts, tokens, and limitations.</p></div><span class="badge b-ai">AI/ML</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Learn embeddings, vector search, and RAG</strong><p>Chunking, embedding, retrieval, prompt assembly, citations, evaluation.</p></div><span class="badge b-ai">AI/ML</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Learn agent basics</strong><p>Tool use, planning steps, memory, guardrails, and when agents are actually useful.</p></div><span class="badge b-ai">AI/ML</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: local PDF chatbot</strong><p>Ask questions over your notes using a local model.</p></div><span class="badge b-build">Build</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mini project: RAG study assistant</strong><p>Upload notes, retrieve context, answer questions, and track source chunks.</p></div><span class="badge b-build">Build</span></label>
+            </div>
+          </section>
+
+          <section class="card section" id="projects">
+            <div class="section-head">
+              <div>
+                <h2>Final integrated projects</h2>
+                <p class="small">Goal: combine everything you learned into portfolio-worthy work.</p>
+              </div>
+              <span class="tag">Portfolio set</span>
+            </div>
+            <div class="task-grid">
+              <label class="task"><input type="checkbox"><div><strong>Project 1 · Local web app</strong><p>Full-stack app on local machine with frontend, backend, DB, environment setup, and README.</p></div><span class="badge b-build">Build</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Project 2 · Cloud deployed app</strong><p>Deploy and maintain app on AWS with logs, monitoring, updates, and cost awareness.</p></div><span class="badge b-cloud">Cloud</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Project 3 · Full-stack AI app</strong><p>Build one polished app that uses authentication, DB, cloud hosting, and an LLM/RAG feature.</p></div><span class="badge b-ai">AI/ML</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Resume and LinkedIn refresh</strong><p>Add quantified project bullets, GitHub links, deployment links, and tech stack used.</p></div><span class="badge b-core">Core</span></label>
+              <label class="task"><input type="checkbox"><div><strong>Mock interviews + DSA revision</strong><p>Practice coding, DBMS, OS, CN, OOP, and explain your projects clearly.</p></div><span class="badge b-core">Core</span></label>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const root = document.documentElement;
+    const boxes = () => [...document.querySelectorAll('input[type="checkbox"]')];
+    const overallPct = document.getElementById('overallPct');
+    const doneCount = document.getElementById('doneCount');
+    const totalCount = document.getElementById('totalCount');
+    const overallBar = document.getElementById('overallBar');
+
+    function updateStats() {
+      const all = boxes();
+      const done = all.filter(b => b.checked).length;
+      const total = all.length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      overallPct.textContent = pct + '%';
+      doneCount.textContent = done;
+      totalCount.textContent = total;
+      overallBar.style.width = pct + '%';
+    }
+
+    boxes().forEach(b => b.addEventListener('change', updateStats));
+    updateStats();
+
+    document.getElementById('checkAll').addEventListener('click', () => {
+      boxes().forEach(b => b.checked = true);
+      updateStats();
+    });
+
+    document.getElementById('resetAll').addEventListener('click', () => {
+      boxes().forEach(b => b.checked = false);
+      updateStats();
+    });
+
+    let mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    root.setAttribute('data-theme', mode);
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      mode = mode === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', mode);
+    });
+  </script>
+</body>
+</html>
